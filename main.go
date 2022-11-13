@@ -30,41 +30,47 @@ func main() {
 	}
 	defer objs.Close()
 
-	kpc, err := link.Kprobe("sys_connect", objs.Connect, nil)
+	kpsock, err := link.Kprobe("security_socket_create", objs.Lsmsocket, nil)
+	if err != nil {
+		log.Fatalf("opening kprobe: %s", err)
+	}
+	defer kpsock.Close()
+
+	kpb, err := link.Kprobe("security_socket_bind", objs.Lsmb, nil)
+	if err != nil {
+		log.Fatalf("opening kprobe: %s", err)
+	}
+	defer kpb.Close()
+
+	kpc, err := link.Kprobe("security_socket_connect", objs.Lsmc, nil)
 	if err != nil {
 		log.Fatalf("opening kprobe: %s", err)
 	}
 	defer kpc.Close()
 
-	kpsc, err := link.AttachLSM(link.LSMOptions{Program: objs.Lsm})
+	kpl, err := link.Kprobe("security_socket_listen", objs.Lsml, nil)
 	if err != nil {
 		log.Fatalf("opening kprobe: %s", err)
 	}
-	defer kpsc.Close()
+	defer kpl.Close()
 
-	kprc, err := link.Kretprobe("sys_connect", objs.Rconnect, nil)
-	if err != nil {
-		log.Fatalf("opening kprobe: %s", err)
-	}
-	defer kprc.Close()
-
-	kpa, err := link.Kprobe("sys_accept", objs.Accept, nil)
+	kpa, err := link.Kprobe("security_socket_accept", objs.Lsma, nil)
 	if err != nil {
 		log.Fatalf("opening kprobe: %s", err)
 	}
 	defer kpa.Close()
 
-	kpsa, err := link.AttachLSM(link.LSMOptions{Program: objs.Lsma})
+	kpsend, err := link.Kprobe("security_socket_sendmsg", objs.Lsmsend, nil)
 	if err != nil {
 		log.Fatalf("opening kprobe: %s", err)
 	}
-	defer kpsa.Close()
+	defer kpsend.Close()
 
-	kpra, err := link.Kretprobe("sys_accept", objs.Raccept, nil)
+	kprecv, err := link.Kprobe("security_socket_recvmsg", objs.Lsmrecv, nil)
 	if err != nil {
 		log.Fatalf("opening kprobe: %s", err)
 	}
-	defer kpra.Close()
+	defer kprecv.Close()
 
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()

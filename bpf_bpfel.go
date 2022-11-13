@@ -13,6 +13,8 @@ import (
 	"github.com/cilium/ebpf"
 )
 
+type bpfBufsT struct{ Buf [32768]int8 }
+
 // loadBpf returns the embedded CollectionSpec for bpf.
 func loadBpf() (*ebpf.CollectionSpec, error) {
 	reader := bytes.NewReader(_BpfBytes)
@@ -54,18 +56,21 @@ type bpfSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfProgramSpecs struct {
-	Accept   *ebpf.ProgramSpec `ebpf:"accept"`
-	Connect  *ebpf.ProgramSpec `ebpf:"connect"`
-	Lsm      *ebpf.ProgramSpec `ebpf:"lsm"`
-	Lsma     *ebpf.ProgramSpec `ebpf:"lsma"`
-	Raccept  *ebpf.ProgramSpec `ebpf:"raccept"`
-	Rconnect *ebpf.ProgramSpec `ebpf:"rconnect"`
+	Lsma      *ebpf.ProgramSpec `ebpf:"lsma"`
+	Lsmb      *ebpf.ProgramSpec `ebpf:"lsmb"`
+	Lsmc      *ebpf.ProgramSpec `ebpf:"lsmc"`
+	Lsml      *ebpf.ProgramSpec `ebpf:"lsml"`
+	Lsmrecv   *ebpf.ProgramSpec `ebpf:"lsmrecv"`
+	Lsmsend   *ebpf.ProgramSpec `ebpf:"lsmsend"`
+	Lsmsocket *ebpf.ProgramSpec `ebpf:"lsmsocket"`
 }
 
 // bpfMapSpecs contains maps before they are loaded into the kernel.
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfMapSpecs struct {
+	Bufs          *ebpf.MapSpec `ebpf:"bufs"`
+	BufsOff       *ebpf.MapSpec `ebpf:"bufs_off"`
 	PercpuHashMap *ebpf.MapSpec `ebpf:"percpu_hash_map"`
 }
 
@@ -88,11 +93,15 @@ func (o *bpfObjects) Close() error {
 //
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfMaps struct {
+	Bufs          *ebpf.Map `ebpf:"bufs"`
+	BufsOff       *ebpf.Map `ebpf:"bufs_off"`
 	PercpuHashMap *ebpf.Map `ebpf:"percpu_hash_map"`
 }
 
 func (m *bpfMaps) Close() error {
 	return _BpfClose(
+		m.Bufs,
+		m.BufsOff,
 		m.PercpuHashMap,
 	)
 }
@@ -101,22 +110,24 @@ func (m *bpfMaps) Close() error {
 //
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfPrograms struct {
-	Accept   *ebpf.Program `ebpf:"accept"`
-	Connect  *ebpf.Program `ebpf:"connect"`
-	Lsm      *ebpf.Program `ebpf:"lsm"`
-	Lsma     *ebpf.Program `ebpf:"lsma"`
-	Raccept  *ebpf.Program `ebpf:"raccept"`
-	Rconnect *ebpf.Program `ebpf:"rconnect"`
+	Lsma      *ebpf.Program `ebpf:"lsma"`
+	Lsmb      *ebpf.Program `ebpf:"lsmb"`
+	Lsmc      *ebpf.Program `ebpf:"lsmc"`
+	Lsml      *ebpf.Program `ebpf:"lsml"`
+	Lsmrecv   *ebpf.Program `ebpf:"lsmrecv"`
+	Lsmsend   *ebpf.Program `ebpf:"lsmsend"`
+	Lsmsocket *ebpf.Program `ebpf:"lsmsocket"`
 }
 
 func (p *bpfPrograms) Close() error {
 	return _BpfClose(
-		p.Accept,
-		p.Connect,
-		p.Lsm,
 		p.Lsma,
-		p.Raccept,
-		p.Rconnect,
+		p.Lsmb,
+		p.Lsmc,
+		p.Lsml,
+		p.Lsmrecv,
+		p.Lsmsend,
+		p.Lsmsocket,
 	)
 }
 
