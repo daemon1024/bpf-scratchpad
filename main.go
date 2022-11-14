@@ -12,7 +12,7 @@ import (
 	"github.com/cilium/ebpf/rlimit"
 )
 
-//go:generate go run github.com/cilium/ebpf/cmd/bpf2go -cc clang bpf net.bpf.c -- -I/usr/include/bpf -O2 -g
+//go:generate go run github.com/cilium/ebpf/cmd/bpf2go -cc clang bpf test.bpf.c -- -I/usr/include/bpf -O2 -g
 
 func main() {
 
@@ -30,47 +30,11 @@ func main() {
 	}
 	defer objs.Close()
 
-	kpsock, err := link.Kprobe("security_socket_create", objs.Lsmsocket, nil)
+	kinoc, err := link.AttachLSM(link.LSMOptions{Program: objs.InodeCreate})
 	if err != nil {
-		log.Fatalf("opening kprobe: %s", err)
+		log.Fatalf("opening lsm: %s", err)
 	}
-	defer kpsock.Close()
-
-	kpb, err := link.Kprobe("security_socket_bind", objs.Lsmb, nil)
-	if err != nil {
-		log.Fatalf("opening kprobe: %s", err)
-	}
-	defer kpb.Close()
-
-	kpc, err := link.Kprobe("security_socket_connect", objs.Lsmc, nil)
-	if err != nil {
-		log.Fatalf("opening kprobe: %s", err)
-	}
-	defer kpc.Close()
-
-	kpl, err := link.Kprobe("security_socket_listen", objs.Lsml, nil)
-	if err != nil {
-		log.Fatalf("opening kprobe: %s", err)
-	}
-	defer kpl.Close()
-
-	kpa, err := link.Kprobe("security_socket_accept", objs.Lsma, nil)
-	if err != nil {
-		log.Fatalf("opening kprobe: %s", err)
-	}
-	defer kpa.Close()
-
-	kpsend, err := link.Kprobe("security_socket_sendmsg", objs.Lsmsend, nil)
-	if err != nil {
-		log.Fatalf("opening kprobe: %s", err)
-	}
-	defer kpsend.Close()
-
-	kprecv, err := link.Kprobe("security_socket_recvmsg", objs.Lsmrecv, nil)
-	if err != nil {
-		log.Fatalf("opening kprobe: %s", err)
-	}
-	defer kprecv.Close()
+	defer kinoc.Close()
 
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()

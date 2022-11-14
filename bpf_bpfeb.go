@@ -56,22 +56,15 @@ type bpfSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfProgramSpecs struct {
-	Lsma      *ebpf.ProgramSpec `ebpf:"lsma"`
-	Lsmb      *ebpf.ProgramSpec `ebpf:"lsmb"`
-	Lsmc      *ebpf.ProgramSpec `ebpf:"lsmc"`
-	Lsml      *ebpf.ProgramSpec `ebpf:"lsml"`
-	Lsmrecv   *ebpf.ProgramSpec `ebpf:"lsmrecv"`
-	Lsmsend   *ebpf.ProgramSpec `ebpf:"lsmsend"`
-	Lsmsocket *ebpf.ProgramSpec `ebpf:"lsmsocket"`
+	InodeCreate *ebpf.ProgramSpec `ebpf:"inode_create"`
 }
 
 // bpfMapSpecs contains maps before they are loaded into the kernel.
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfMapSpecs struct {
-	Bufs          *ebpf.MapSpec `ebpf:"bufs"`
-	BufsOff       *ebpf.MapSpec `ebpf:"bufs_off"`
-	PercpuHashMap *ebpf.MapSpec `ebpf:"percpu_hash_map"`
+	Bufs    *ebpf.MapSpec `ebpf:"bufs"`
+	BufsOff *ebpf.MapSpec `ebpf:"bufs_off"`
 }
 
 // bpfObjects contains all objects after they have been loaded into the kernel.
@@ -93,16 +86,14 @@ func (o *bpfObjects) Close() error {
 //
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfMaps struct {
-	Bufs          *ebpf.Map `ebpf:"bufs"`
-	BufsOff       *ebpf.Map `ebpf:"bufs_off"`
-	PercpuHashMap *ebpf.Map `ebpf:"percpu_hash_map"`
+	Bufs    *ebpf.Map `ebpf:"bufs"`
+	BufsOff *ebpf.Map `ebpf:"bufs_off"`
 }
 
 func (m *bpfMaps) Close() error {
 	return _BpfClose(
 		m.Bufs,
 		m.BufsOff,
-		m.PercpuHashMap,
 	)
 }
 
@@ -110,24 +101,12 @@ func (m *bpfMaps) Close() error {
 //
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfPrograms struct {
-	Lsma      *ebpf.Program `ebpf:"lsma"`
-	Lsmb      *ebpf.Program `ebpf:"lsmb"`
-	Lsmc      *ebpf.Program `ebpf:"lsmc"`
-	Lsml      *ebpf.Program `ebpf:"lsml"`
-	Lsmrecv   *ebpf.Program `ebpf:"lsmrecv"`
-	Lsmsend   *ebpf.Program `ebpf:"lsmsend"`
-	Lsmsocket *ebpf.Program `ebpf:"lsmsocket"`
+	InodeCreate *ebpf.Program `ebpf:"inode_create"`
 }
 
 func (p *bpfPrograms) Close() error {
 	return _BpfClose(
-		p.Lsma,
-		p.Lsmb,
-		p.Lsmc,
-		p.Lsml,
-		p.Lsmrecv,
-		p.Lsmsend,
-		p.Lsmsocket,
+		p.InodeCreate,
 	)
 }
 
