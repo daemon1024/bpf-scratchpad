@@ -57,6 +57,11 @@ type bpfSpecs struct {
 // It can be passed ebpf.CollectionSpec.Assign.
 type bpfProgramSpecs struct {
 	InodeCreate *ebpf.ProgramSpec `ebpf:"inode_create"`
+	InodeLink   *ebpf.ProgramSpec `ebpf:"inode_link"`
+	InodeUnlink *ebpf.ProgramSpec `ebpf:"inode_unlink"`
+	PathLink    *ebpf.ProgramSpec `ebpf:"path_link"`
+	PathMknod   *ebpf.ProgramSpec `ebpf:"path_mknod"`
+	PathUnlink  *ebpf.ProgramSpec `ebpf:"path_unlink"`
 }
 
 // bpfMapSpecs contains maps before they are loaded into the kernel.
@@ -102,11 +107,21 @@ func (m *bpfMaps) Close() error {
 // It can be passed to loadBpfObjects or ebpf.CollectionSpec.LoadAndAssign.
 type bpfPrograms struct {
 	InodeCreate *ebpf.Program `ebpf:"inode_create"`
+	InodeLink   *ebpf.Program `ebpf:"inode_link"`
+	InodeUnlink *ebpf.Program `ebpf:"inode_unlink"`
+	PathLink    *ebpf.Program `ebpf:"path_link"`
+	PathMknod   *ebpf.Program `ebpf:"path_mknod"`
+	PathUnlink  *ebpf.Program `ebpf:"path_unlink"`
 }
 
 func (p *bpfPrograms) Close() error {
 	return _BpfClose(
 		p.InodeCreate,
+		p.InodeLink,
+		p.InodeUnlink,
+		p.PathLink,
+		p.PathMknod,
+		p.PathUnlink,
 	)
 }
 

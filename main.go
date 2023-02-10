@@ -36,6 +36,36 @@ func main() {
 	}
 	defer kinoc.Close()
 
+	kpathnmkn, err := link.AttachLSM(link.LSMOptions{Program: objs.PathMknod})
+	if err != nil {
+		log.Fatalf("opening lsm: %s", err)
+	}
+	defer kpathnmkn.Close()
+
+	kinol, err := link.AttachLSM(link.LSMOptions{Program: objs.InodeLink})
+	if err != nil {
+		log.Fatalf("opening lsm: %s", err)
+	}
+	defer kinol.Close()
+
+	kinoul, err := link.AttachLSM(link.LSMOptions{Program: objs.InodeUnlink})
+	if err != nil {
+		log.Fatalf("opening lsm: %s", err)
+	}
+	defer kinoul.Close()
+
+	kpathl, err := link.AttachLSM(link.LSMOptions{Program: objs.PathLink})
+	if err != nil {
+		log.Fatalf("opening lsm: %s", err)
+	}
+	defer kpathl.Close()
+
+	kapthul, err := link.AttachLSM(link.LSMOptions{Program: objs.PathUnlink})
+	if err != nil {
+		log.Fatalf("opening lsm: %s", err)
+	}
+	defer kapthul.Close()
+
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
